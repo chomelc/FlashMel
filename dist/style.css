@@ -599,6 +599,10 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.font-press {
+  font-family: "Press Start 2P", cursive;
+}
+
 .font-sans {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }

@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        press: ['"Press Start 2P"', 'cursive'],
+      },
       colors: {
         alien: '#A259FF',
         neonPink: '#FF4FD8',
