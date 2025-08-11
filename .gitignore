@@ -5,7 +5,6 @@ node_modules/
 .pnp
 .pnp.js
 .cache/
-dist/
 
 # Logs
 npm-debug.log*
