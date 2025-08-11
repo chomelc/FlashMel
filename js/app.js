@@ -14,7 +14,7 @@ const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
 // Initializing map, centered on Paris, dark theme by default
 const map = L.map('map', {
     center: [48.8566, 2.3522],
-    zoom: 13,
+    zoom: 16,
     layers: [darkLayer]
 });
 
@@ -62,37 +62,77 @@ async function createInvaderIcon(fillColor = '#A259FF', halo = '#00FF85') {
     return icon;
 }
 
-// Examples
-(async () => {
-    const invaderIconFlashed = await createInvaderIcon('#00FF85', '#00FF85');
-    const invaderIconNotFlashed = await createInvaderIcon('#FFD166', '#FFD166');
-    const invaderIconDestroyed = await createInvaderIcon('#FF4F4F', '#FF4F4F');
-    L.marker([48.8566, 2.3522], { icon: invaderIconFlashed }).addTo(map)
-        .bindPopup('Flashed ✅');
-    L.marker([48.8666, 2.3422], { icon: invaderIconNotFlashed }).addTo(map)
-        .bindPopup('Not Flashed (yet)');
-    L.marker([48.8466, 2.3622], { icon: invaderIconDestroyed }).addTo(map)
-        .bindPopup('Destroyed ❌');
-})();
+let allMosaics = [];
+let markersLayer = L.layerGroup().addTo(map); // All visible markers
 
-// Loading mosaics from JSON file
-fetch('/data/mosaics.json')
-    .then(response => response.json())
-    .then(data => {
-        L.geoJSON(data, {
-            onEachFeature: (feature, layer) => {
-                const props = feature.properties;
-                let popupContent = `<strong>${props.name}</strong><br>Status: ${props.status || 'unknown'}`;
-                if (props.image) {
-                    popupContent += `<br><img src="${props.image}" alt="${props.name}" style="width:100px;">`;
+(async () => {
+    try {
+        const response = await fetch('data/mosaics.json');
+        allMosaics = await response.json();
+
+        // Prepare icons
+        const iconOK = await createInvaderIcon('#FFD166', '#FFD166');
+        const iconFlashed = await createInvaderIcon('#00FF85', '#00FF85');
+        const iconDestroyed = await createInvaderIcon('#FF4F4F', '#FF4F4F');
+        const iconHidden = await createInvaderIcon('#A259FF', '#A259FF');
+
+        // Display visible mosaics
+        function updateVisibleMosaics() {
+            markersLayer.clearLayers(); // Clear previous display
+            const bounds = map.getBounds();
+
+            allMosaics.forEach(mosaic => {
+                const latStr = (mosaic.lat || '').toString().trim().replace(',', '.');
+                const lngStr = (mosaic.lng || '').toString().trim().replace(',', '.');
+
+                const lat = parseFloat(latStr);
+                const lng = parseFloat(lngStr);
+
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                // Check if point is in the current view
+                if (!bounds.contains([lat, lng])) return;
+
+                // Icon based on status
+                let icon;
+                switch (mosaic.status) {
+                    case 'OK':
+                        icon = iconOK;
+                        break;
+                    case 'destroyed':
+                        icon = iconDestroyed;
+                        break;
+                    case 'hidden':
+                        icon = iconHidden;
+                        break;
+                    default:
+                        icon = iconOK;
+                        break;
                 }
-                layer.bindPopup(popupContent);
-            }
-        }).addTo(map);
-    })
-    .catch(err => {
-        console.error('Error while loading GeoJSON:', err);
-    });
+
+                // Adding marker
+                L.marker([lat, lng], { icon })
+                    .bindPopup(`
+                        <strong>${mosaic.id}</strong><br>
+                        ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
+                        ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
+                        ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
+                        <i>${mosaic.points} pts</i>
+                    `)
+                    .addTo(markersLayer);
+            });
+        }
+
+        // First update
+        updateVisibleMosaics();
+
+        // Update at each zoom/map movement
+        map.on('moveend', updateVisibleMosaics);
+
+    } catch (err) {
+        console.error('Error while loading mosaics:', err);
+    }
+})();
 
 // Switch light/dark
 let isDark = true;
