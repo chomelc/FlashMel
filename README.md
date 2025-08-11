@@ -1,6 +1,10 @@
 # :space_invader: FlashMel
 
-Webapp de tracking personnel des [Flash Invaders](https://www.space-invaders.com/world/) de l'artiste [Invader](https://www.instagram.com/invaderwashere), sur une carte interactive.
+Webapp for personal tracking of [Flash Invaders](https://www.space-invaders.com/world/) from [Invader](https://www.instagram.com/invaderwashere), on an interactive map.
+
+## :wrench: Tools & Third Parties
+
+- [Space Invaders World Database](https://github.com/goguelnikov/SpaceInvaders/tree/main)
 
 ## :gear: Tech Stack
 
@@ -8,3 +12,7 @@ Webapp de tracking personnel des [Flash Invaders](https://www.space-invaders.com
 - Tailwind CSS
 - OpenStreetMap
 - Leaflet.js
+
+## :round_pushpin: Website
+
+:rocket: [FlashMel](chomelc.github.io/FlashMel/)
