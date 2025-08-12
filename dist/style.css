@@ -582,6 +582,10 @@ video {
   visibility: visible;
 }
 
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
 .flex {
   display: flex;
 }
@@ -649,6 +653,10 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .font-sans {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
@@ -662,9 +670,18 @@ video {
   font-weight: 700;
 }
 
+.font-semibold {
+  font-weight: 600;
+}
+
 .text-alien {
   --tw-text-opacity: 1;
   color: rgb(162 89 255 / var(--tw-text-opacity));
+}
+
+.text-pixelGray {
+  --tw-text-opacity: 1;
+  color: rgb(43 43 51 / var(--tw-text-opacity));
 }
 
 .text-white {
@@ -702,6 +719,12 @@ body {
 
 .leaflet-popup-content a.text-alien {
   color: #A259FF !important;
+}
+
+.search-result-item:hover {
+  background-color: white;
+  color: #2B2B33;
+  font-weight: bold;
 }
 
 .hover\:shadow-neonPink:hover {
