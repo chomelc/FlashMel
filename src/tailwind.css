@@ -10,3 +10,9 @@ body {
 .leaflet-popup-content a.text-alien {
     color: #A259FF !important;
 }
+
+.search-result-item:hover {
+    background-color: white;
+    color: #2B2B33;
+    font-weight: bold;
+}
