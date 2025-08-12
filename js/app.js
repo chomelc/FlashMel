@@ -420,8 +420,18 @@ L.Control.PlayerSelect = L.Control.extend({
             .catch(err => console.error('Error while loading players:', err));
 
         select.addEventListener('change', () => {
-            console.log('Selected player:', select.value || 'All mosaics');
-            // TODO : get flashed mosaics
+            const selectedUID = select.value;
+            console.log('Selected player:', selectedUID || 'All mosaics');
+
+            if (selectedUID && selectedUID !== 'All mosaics') {
+                fetch(`https://space-invaders-proxy.clemence-chomel.workers.dev/?uid=${selectedUID}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('Received data:', data)
+                        // TODO : update map
+                    })
+                    .catch(err => console.error('Proxy fetch error:', err))
+            }
         });
 
         return container;
