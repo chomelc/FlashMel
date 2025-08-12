@@ -662,6 +662,11 @@ video {
   font-weight: 700;
 }
 
+.text-alien {
+  --tw-text-opacity: 1;
+  color: rgb(162 89 255 / var(--tw-text-opacity));
+}
+
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -693,6 +698,10 @@ video {
 body {
   background-color: #0E0E10;
   color: white;
+}
+
+.leaflet-popup-content a.text-alien {
+  color: #A259FF !important;
 }
 
 .hover\:shadow-neonPink:hover {
