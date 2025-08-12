@@ -12,7 +12,7 @@ const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/
 });
 
 // Initializing map, centered on Paris, dark theme by default
-const map = L.map('map', {
+window.map = L.map('map', {
     center: [48.8566, 2.3522],
     zoom: 16,
     layers: [darkLayer]
@@ -60,14 +60,14 @@ async function createInvaderIcon(fillColor = '#A259FF', halo = '#00FF85') {
     });
 }
 
-let allMosaics = [];
-let markersLayer = L.layerGroup().addTo(map); // All visible markers
+window.allMosaics = [];
+window.markersLayer = L.layerGroup().addTo(map); // All visible markers
 
 // Load and display visible mosaics
 (async () => {
     try {
         const response = await fetch('data/mosaics.json');
-        allMosaics = await response.json();
+        window.allMosaics = await response.json();
 
         // Prepare icons
         const iconOK = await createInvaderIcon('#FFD166', '#FFD166');
@@ -77,10 +77,10 @@ let markersLayer = L.layerGroup().addTo(map); // All visible markers
 
         // Display/update visible mosaics
         function updateVisibleMosaics() {
-            markersLayer.clearLayers();
+            window.markersLayer.clearLayers();
             const bounds = map.getBounds();
 
-            allMosaics.forEach(mosaic => {
+            window.allMosaics.forEach(mosaic => {
                 const lat = parseFloat((mosaic.lat || '').toString().trim().replace(',', '.'));
                 const lng = parseFloat((mosaic.lng || '').toString().trim().replace(',', '.'));
                 if (isNaN(lat) || isNaN(lng)) return;
@@ -111,7 +111,7 @@ let markersLayer = L.layerGroup().addTo(map); // All visible markers
                             📷 <span style="text-decoration:underline;">#${mosaic.id}</span>
                         </a>
                     `)
-                    .addTo(markersLayer);
+                    .addTo(window.markersLayer);
             });
         }
 
@@ -364,7 +364,39 @@ L.control.locate = function (opts) {
     return new L.Control.Locate(opts);
 };
 
+// Search mosaic by ID
+L.Control.SearchMosaic = L.Control.extend({
+    onAdd: function (map) {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+        container.style.backgroundColor = 'white';
+        container.style.width = '34px';
+        container.style.height = '34px';
+        container.style.cursor = 'pointer';
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+        container.style.fontSize = '18px';
+        container.title = 'Search mosaic by ID';
+
+        container.textContent = '🔎';
+
+        L.DomEvent.on(container, 'click', function (e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            openSearchModal();
+        });
+
+        return container;
+    }
+});
+
+L.control.searchMosaic = function (opts) {
+    return new L.Control.SearchMosaic(opts);
+};
+
 L.control.locate({ position: 'topleft' }).addTo(map);
+L.control.searchMosaic({ position: 'topleft' }).addTo(map);
 
 // Masking obsolete Leaflet warnings
 const originalWarn = console.warn;
