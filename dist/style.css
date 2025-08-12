@@ -727,6 +727,28 @@ body {
   font-weight: bold;
 }
 
+.player-select-control select {
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px 12px;
+  width: 160px;
+  border-radius: 4px;
+}
+
+.player-select-control {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  color: #2B2B33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .hover\:shadow-neonPink:hover {
   --tw-shadow: 0 0 10px #FF4FD8;
   --tw-shadow-colored: 0 0 10px var(--tw-shadow-color);

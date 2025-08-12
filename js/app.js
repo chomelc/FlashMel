@@ -395,8 +395,46 @@ L.control.searchMosaic = function (opts) {
     return new L.Control.SearchMosaic(opts);
 };
 
+// Player selection
+L.Control.PlayerSelect = L.Control.extend({
+    onAdd: function (map) {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom player-select-control');
+        const select = L.DomUtil.create('select', '', container);
+
+        // Default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = 'All mosaics';
+        defaultOption.textContent = 'All mosaics';
+        select.appendChild(defaultOption);
+
+        fetch('data/players.json')
+            .then(response => response.json())
+            .then(players => {
+                players.forEach(player => {
+                    const opt = document.createElement('option');
+                    opt.value = player.UID;
+                    opt.textContent = player.player;
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => console.error('Error while loading players:', err));
+
+        select.addEventListener('change', () => {
+            console.log('Selected player:', select.value || 'All mosaics');
+            // TODO : get flashed mosaics
+        });
+
+        return container;
+    }
+});
+
+L.control.playerSelect = function (opts) {
+    return new L.Control.PlayerSelect(opts);
+};
+
 L.control.locate({ position: 'topleft' }).addTo(map);
 L.control.searchMosaic({ position: 'topleft' }).addTo(map);
+L.control.playerSelect({ position: 'topright' }).addTo(map);
 
 // Masking obsolete Leaflet warnings
 const originalWarn = console.warn;
