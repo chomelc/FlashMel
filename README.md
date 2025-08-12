@@ -15,4 +15,4 @@ Webapp for personal tracking of [Flash Invaders](https://www.space-invaders.com/
 
 ## :round_pushpin: Website
 
-:rocket: [FlashMel](chomelc.github.io/FlashMel/)
+:rocket: [FlashMel](https://chomelc.github.io/FlashMel/)
