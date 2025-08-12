@@ -104,7 +104,12 @@ let markersLayer = L.layerGroup().addTo(map); // All visible markers
                         ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
                         ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
                         ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
-                        <i>${mosaic.points} pts</i>
+                        <i>${mosaic.points} pts</i><br/>
+                        <a 
+                            class="text-alien" 
+                            href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">
+                            📷 <span style="text-decoration:underline;">#${mosaic.id}</span>
+                        </a>
                     `)
                     .addTo(markersLayer);
             });
