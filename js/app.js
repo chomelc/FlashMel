@@ -422,9 +422,10 @@ L.Control.PlayerSelect = L.Control.extend({
         select.addEventListener('change', () => {
             const selectedUID = select.value;
             console.log('Selected player:', selectedUID || 'All mosaics');
+            const apiUrl = `https://api.space-invaders.com/flashinvaders_v3_pas_trop_predictif/api/gallery?uid=${encodeURIComponent(selectedUID)}`
 
             if (selectedUID && selectedUID !== 'All mosaics') {
-                fetch(`https://space-invaders-proxy.clemence-chomel.workers.dev/?uid=${selectedUID}`)
+                fetch(apiUrl)
                     .then(res => res.json())
                     .then(data => {
                         console.log('Received data:', data)
