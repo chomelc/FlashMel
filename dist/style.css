@@ -759,6 +759,31 @@ body {
   justify-content: center;
 }
 
+#loading-spinner {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(162, 89, 255, 0.2);
+  border-top: 5px solid #A259FF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .hover\:shadow-neonPink:hover {
   --tw-shadow: 0 0 10px #FF4FD8;
   --tw-shadow-colored: 0 0 10px var(--tw-shadow-color);

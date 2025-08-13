@@ -60,12 +60,20 @@ async function createInvaderIcon(fillColor = '#A259FF', halo = '#00FF85') {
     });
 }
 
+function showSpinner() {
+    document.getElementById('loading-spinner').style.display = 'flex';
+}
+function hideSpinner() {
+    document.getElementById('loading-spinner').style.display = 'none';
+}
+
 window.allMosaics = [];
 window.markersLayer = L.layerGroup().addTo(map); // All visible markers
 
 // Load and display visible mosaics
 (async () => {
     try {
+        showSpinner();
         const response = await fetch('data/mosaics.json');
         window.allMosaics = await response.json();
 
@@ -123,6 +131,8 @@ window.markersLayer = L.layerGroup().addTo(map); // All visible markers
 
     } catch (err) {
         console.error('Error while loading mosaics:', err);
+    } finally {
+        hideSpinner();
     }
 })();
 
@@ -425,13 +435,15 @@ L.Control.PlayerSelect = L.Control.extend({
             const apiUrl = `https://api.space-invaders.com/flashinvaders_v3_pas_trop_predictif/api/gallery?uid=${encodeURIComponent(selectedUID)}`
 
             if (selectedUID && selectedUID !== 'All mosaics') {
+                showSpinner();
                 fetch(apiUrl)
                     .then(res => res.json())
                     .then(data => {
                         console.log('Received data:', data)
                         // TODO : update map
                     })
-                    .catch(err => console.error('Proxy fetch error:', err))
+                    .catch(err => console.error('API fetch error:', err))
+                    .finally(() => hideSpinner());
             }
         });
 
