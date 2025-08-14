@@ -247,6 +247,11 @@ L.Control.Locate = L.Control.extend({
             let alpha = event.alpha;
             if (alpha === null) return;
 
+            // Fix depending on screen orientation
+            const screenAngle = screen.orientation?.angle || window.orientation || 0;
+            // Inverting left/right
+            alpha = (-alpha - screenAngle + 180) % 360;
+
             // Rotate arrow according to alpha
             rotateArrow(positionMarker, alpha);
         }
