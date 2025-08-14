@@ -142,7 +142,8 @@ function updateVisibleMosaics() {
                 ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
                 ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
                 <i>${mosaic.points} pts</i><br/>
-                <a class="text-alien" href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">📷 #${mosaic.id}</a>
+                <a class="text-alien" href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">📷 #${mosaic.id}</a><br/>
+                <a class="text-alien" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank">🧭 Get directions</a>
             `);
 
         // Add marker to cluster
