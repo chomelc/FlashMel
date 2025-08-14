@@ -18,6 +18,37 @@ window.map = L.map('map', {
     layers: [darkLayer]
 });
 
+// Initializing cluster
+document.addEventListener("DOMContentLoaded", function () {
+    window.markersLayer = L.markerClusterGroup({
+        // Clusters' style depending on number of markers
+        iconCreateFunction: function (cluster) {
+            const count = cluster.getChildCount();
+            let color = '#FFD166'; // default yellow
+            if (count > 10) color = '#FF9755';       // orange if more than 10
+
+            return L.divIcon({
+                html: `<div style="
+                        background-color: ${color};
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        box-shadow: 0 0 10px ${color};
+                    ">${count}</div>`,
+                className: 'custom-cluster-icon',
+                iconSize: [40, 40]
+            });
+        }
+    });
+    window.map.addLayer(window.markersLayer);
+    updateVisibleMosaics();
+});
+
 window.iconOK = null;
 window.iconFlashed = null;
 window.iconDestroyed = null;
@@ -75,22 +106,22 @@ function hideSpinner() {
 }
 
 window.allMosaics = [];
-window.markersLayer = L.layerGroup().addTo(map); // All visible markers
 
 // Display/update visible mosaics
 function updateVisibleMosaics() {
+    // Clear existing markers
     window.markersLayer.clearLayers();
-    const bounds = window.map.getBounds();
+
+    const bounds = map.getBounds();
 
     window.allMosaics.forEach(mosaic => {
+        // Coordinates conversion
         const lat = parseFloat((mosaic.lat || '').toString().trim().replace(',', '.'));
         const lng = parseFloat((mosaic.lng || '').toString().trim().replace(',', '.'));
         if (isNaN(lat) || isNaN(lng)) return;
-
-        // Check if point is in the current view
         if (!bounds.contains([lat, lng])) return;
 
-        // Icon based on status + flashed
+        // Icon selection
         let icon;
         if (window.flashedIDs.has(mosaic.id)) {
             icon = iconFlashed;
@@ -103,17 +134,19 @@ function updateVisibleMosaics() {
             }
         }
 
-        // Adding marker
-        L.marker([lat, lng], { icon, mosaicId: mosaic.id }) // on stocke l'ID ici
+        // Creating marker with popup
+        const marker = L.marker([lat, lng], { icon, mosaicId: mosaic.id })
             .bindPopup(`
-                        <strong>${mosaic.id}</strong><br>
-                        ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
-                        ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
-                        ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
-                        <i>${mosaic.points} pts</i><br/>
-                        <a class="text-alien" href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">📷 #${mosaic.id}</a>
-                    `)
-            .addTo(markersLayer);
+                <strong>${mosaic.id}</strong><br>
+                ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
+                ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
+                ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
+                <i>${mosaic.points} pts</i><br/>
+                <a class="text-alien" href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">📷 #${mosaic.id}</a>
+            `);
+
+        // Add marker to cluster
+        window.markersLayer.addLayer(marker);
     });
 }
 
