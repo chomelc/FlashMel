@@ -18,6 +18,13 @@ window.map = L.map('map', {
     layers: [darkLayer]
 });
 
+window.iconOK = null;
+window.iconFlashed = null;
+window.iconDestroyed = null;
+window.iconHidden = null;
+
+window.flashedIDs = new Set();
+
 // Creating 👾 icon from file
 async function createInvaderIcon(fillColor = '#A259FF', halo = '#00FF85') {
     const response = await fetch('assets/invader.svg');
@@ -70,6 +77,46 @@ function hideSpinner() {
 window.allMosaics = [];
 window.markersLayer = L.layerGroup().addTo(map); // All visible markers
 
+// Display/update visible mosaics
+function updateVisibleMosaics() {
+    window.markersLayer.clearLayers();
+    const bounds = window.map.getBounds();
+
+    window.allMosaics.forEach(mosaic => {
+        const lat = parseFloat((mosaic.lat || '').toString().trim().replace(',', '.'));
+        const lng = parseFloat((mosaic.lng || '').toString().trim().replace(',', '.'));
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        // Check if point is in the current view
+        if (!bounds.contains([lat, lng])) return;
+
+        // Icon based on status + flashed
+        let icon;
+        if (window.flashedIDs.has(mosaic.id)) {
+            icon = iconFlashed;
+        } else {
+            switch (mosaic.status) {
+                case 'OK': icon = iconOK; break;
+                case 'destroyed': icon = iconDestroyed; break;
+                case 'hidden': icon = iconHidden; break;
+                default: icon = iconOK; break;
+            }
+        }
+
+        // Adding marker
+        L.marker([lat, lng], { icon, mosaicId: mosaic.id }) // on stocke l'ID ici
+            .bindPopup(`
+                        <strong>${mosaic.id}</strong><br>
+                        ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
+                        ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
+                        ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
+                        <i>${mosaic.points} pts</i><br/>
+                        <a class="text-alien" href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">📷 #${mosaic.id}</a>
+                    `)
+            .addTo(markersLayer);
+    });
+}
+
 // Load and display visible mosaics
 (async () => {
     try {
@@ -78,50 +125,10 @@ window.markersLayer = L.layerGroup().addTo(map); // All visible markers
         window.allMosaics = await response.json();
 
         // Prepare icons
-        const iconOK = await createInvaderIcon('#FFD166', '#FFD166');
-        const iconFlashed = await createInvaderIcon('#00FF85', '#00FF85');
-        const iconDestroyed = await createInvaderIcon('#FF4F4F', '#FF4F4F');
-        const iconHidden = await createInvaderIcon('#A259FF', '#A259FF');
-
-        // Display/update visible mosaics
-        function updateVisibleMosaics() {
-            window.markersLayer.clearLayers();
-            const bounds = map.getBounds();
-
-            window.allMosaics.forEach(mosaic => {
-                const lat = parseFloat((mosaic.lat || '').toString().trim().replace(',', '.'));
-                const lng = parseFloat((mosaic.lng || '').toString().trim().replace(',', '.'));
-                if (isNaN(lat) || isNaN(lng)) return;
-
-                // Check if point is in the current view
-                if (!bounds.contains([lat, lng])) return;
-
-                // Icon based on status
-                let icon;
-                switch (mosaic.status) {
-                    case 'OK': icon = iconOK; break;
-                    case 'destroyed': icon = iconDestroyed; break;
-                    case 'hidden': icon = iconHidden; break;
-                    default: icon = iconOK; break;
-                }
-
-                // Adding marker
-                L.marker([lat, lng], { icon })
-                    .bindPopup(`
-                        <strong>${mosaic.id}</strong><br>
-                        ${mosaic.status == "destroyed" ? "Destroyed 😭<br>" : ""}
-                        ${mosaic.status == "hidden" ? "Hidden 🤫<br>" : ""}
-                        ${mosaic.hint ? `<i><strong>💡 Hint:</strong> ${mosaic.hint}</i><br>` : ""}
-                        <i>${mosaic.points} pts</i><br/>
-                        <a 
-                            class="text-alien" 
-                            href="https://www.instagram.com/explore/tags/${mosaic.id.toLowerCase()}/">
-                            📷 <span style="text-decoration:underline;">#${mosaic.id}</span>
-                        </a>
-                    `)
-                    .addTo(window.markersLayer);
-            });
-        }
+        window.iconOK = await createInvaderIcon('#FFD166', '#FFD166');
+        window.iconFlashed = await createInvaderIcon('#00FF85', '#00FF85');
+        window.iconDestroyed = await createInvaderIcon('#FF4F4F', '#FF4F4F');
+        window.iconHidden = await createInvaderIcon('#A259FF', '#A259FF');
 
         // First update
         updateVisibleMosaics();
@@ -405,6 +412,11 @@ L.control.searchMosaic = function (opts) {
     return new L.Control.SearchMosaic(opts);
 };
 
+function applyFlashedIcons(flashedIDsSet) {
+    window.flashedIDs = flashedIDsSet;
+    updateVisibleMosaics();
+}
+
 // Player selection
 L.Control.PlayerSelect = L.Control.extend({
     onAdd: function (map) {
@@ -432,18 +444,23 @@ L.Control.PlayerSelect = L.Control.extend({
         select.addEventListener('change', () => {
             const selectedUID = select.value;
             console.log('Selected player:', selectedUID || 'All mosaics');
-            const apiUrl = `https://api.space-invaders.com/flashinvaders_v3_pas_trop_predictif/api/gallery?uid=${encodeURIComponent(selectedUID)}`
+            const apiUrl = `https://api.space-invaders.com/flashinvaders_v3_pas_trop_predictif/api/gallery?uid=${encodeURIComponent(selectedUID)}`;
+
+            showSpinner();
 
             if (selectedUID && selectedUID !== 'All mosaics') {
-                showSpinner();
                 fetch(apiUrl)
                     .then(res => res.json())
                     .then(data => {
-                        console.log('Received data:', data)
-                        // TODO : update map
+                        console.log('Received data:', data);
+                        window.flashedIDs = new Set(Object.keys(data.invaders || {}));
+                        applyFlashedIcons(window.flashedIDs);
                     })
                     .catch(err => console.error('API fetch error:', err))
                     .finally(() => hideSpinner());
+            } else {
+                applyFlashedIcons(new Set());
+                hideSpinner();
             }
         });
 
