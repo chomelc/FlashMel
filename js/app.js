@@ -353,7 +353,23 @@ L.Control.Locate = L.Control.extend({
                     setTimeout(() => {
                         clearInterval(interval);
                         map.removeLayer(circle);
-                    }, 3000);
+
+                        // --- Create permanent radar AFTER temporary radar disappears ---
+                        if (!positionMarker.permanentRadar) {
+                            const baseRadius = 30;
+                            const radar = L.circle(latlng, {
+                                radius: baseRadius,
+                                color: '#A259FF',
+                                weight: 1,
+                                fillColor: '#A259FF',
+                                fillOpacity: 0.15
+                            }).addTo(map);
+
+                            positionMarker.permanentRadar = radar;
+                        } else {
+                            positionMarker.permanentRadar.setLatLng(latlng);
+                        }
+                    }, 3000); // 3s temporary radar
                 },
                 error => {
                     if (error.code === error.PERMISSION_DENIED) {
