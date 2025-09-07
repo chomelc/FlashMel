@@ -251,7 +251,7 @@ L.Control.Locate = L.Control.extend({
             // Fix depending on screen orientation
             const screenAngle = screen.orientation?.angle || window.orientation || 0;
             // Inverting left/right
-            alpha = (-alpha - screenAngle + 180) % 360;
+            alpha = (-alpha - screenAngle + 135) % 360;
 
             // Rotate arrow according to alpha
             rotateArrow(positionMarker, alpha);
@@ -285,19 +285,67 @@ L.Control.Locate = L.Control.extend({
 
         // Request location and update map
         function requestLocation() {
-            navigator.geolocation.getCurrentPosition(
+            let tempRadarDone = false;
+
+            const watchId = navigator.geolocation.watchPosition(
                 position => {
                     const latlng = [position.coords.latitude, position.coords.longitude];
-                    map.setView(latlng, 16);
+                    map.setView(latlng, map.getZoom());
 
                     // Create or move the position marker
-                    if (positionMarker) {
-                        positionMarker.setLatLng(latlng);
-                    } else {
+                    if (!positionMarker) {
                         positionMarker = L.marker(latlng, {
                             icon: createPositionIcon('#A259FF'),
                             interactive: false
                         }).addTo(map);
+
+                        // Temporary animated radar
+                        const radius = 30;
+                        let currentRadius = radius;
+                        let growing = true;
+                        const maxRadius = radius * 2.5;
+                        const minRadius = radius;
+                        const step = 1.5;
+                        const circle = L.circle(latlng, {
+                            radius,
+                            color: '#A259FF',
+                            fillColor: '#A259FF',
+                            fillOpacity: 0.3
+                        }).addTo(map);
+
+                        const interval = setInterval(() => {
+                            if (growing) {
+                                currentRadius += step;
+                                if (currentRadius >= maxRadius) growing = false;
+                            } else {
+                                currentRadius -= step;
+                                if (currentRadius <= minRadius) growing = true;
+                            }
+                            circle.setRadius(currentRadius);
+                        }, 30);
+
+                        setTimeout(() => {
+                            clearInterval(interval);
+                            map.removeLayer(circle);
+
+                            // Permanent radar
+                            if (!positionMarker.permanentRadar) {
+                                const baseRadius = 30;
+                                const radar = L.circle(latlng, {
+                                    radius: baseRadius,
+                                    color: '#A259FF',
+                                    weight: 1,
+                                    fillColor: '#A259FF',
+                                    fillOpacity: 0.15
+                                }).addTo(map);
+
+                                positionMarker.permanentRadar = radar;
+                            } else {
+                                positionMarker.permanentRadar.setLatLng(latlng);
+                            }
+                        }, 3000); // 3s temporary radar
+
+                        tempRadarDone = true;
 
                         // Listen to device orientation events after marker creation
                         function requestDeviceOrientationPermission() {
@@ -323,37 +371,14 @@ L.Control.Locate = L.Control.extend({
 
                         requestDeviceOrientationPermission();
                     }
-
-                    // Animated radar
-                    const radius = 30;
-                    const circle = L.circle(latlng, {
-                        radius,
-                        color: '#A259FF',
-                        fillColor: '#A259FF',
-                        fillOpacity: 0.3
-                    }).addTo(map);
-
-                    let growing = true;
-                    let currentRadius = radius;
-                    const maxRadius = radius * 2.5;
-                    const minRadius = radius;
-                    const step = 1.5;
-
-                    const interval = setInterval(() => {
-                        if (growing) {
-                            currentRadius += step;
-                            if (currentRadius >= maxRadius) growing = false;
-                        } else {
-                            currentRadius -= step;
-                            if (currentRadius <= minRadius) growing = true;
+                    else {
+                        // Update marker position
+                        positionMarker.setLatLng(latlng);
+                        // No temporary radar for future updates, but still update permanent radar
+                        if (positionMarker.permanentRadar) {
+                            positionMarker.permanentRadar.setLatLng(latlng);
                         }
-                        circle.setRadius(currentRadius);
-                    }, 30);
-
-                    setTimeout(() => {
-                        clearInterval(interval);
-                        map.removeLayer(circle);
-                    }, 3000);
+                    }
                 },
                 error => {
                     if (error.code === error.PERMISSION_DENIED) {
@@ -361,8 +386,15 @@ L.Control.Locate = L.Control.extend({
                     } else {
                         alert('Error while locating you: ' + error.message);
                     }
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,   // keep position for max 1s
+                    timeout: 5000
                 }
             );
+
+            return watchId;
         }
 
         L.DomEvent.on(container, 'click', function (e) {
