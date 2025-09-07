@@ -491,8 +491,29 @@ function applyFlashedIcons(flashedIDsSet) {
 // Player selection
 L.Control.PlayerSelect = L.Control.extend({
     onAdd: function (map) {
+        // Main vertical container
         const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom player-select-control');
-        const select = L.DomUtil.create('select', '', container);
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.alignItems = 'stretch';
+        container.style.padding = '4px';
+
+        // === Wrapper for the select + ▼ ===
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.width = '160px';
+        container.appendChild(wrapper);
+
+        // === Select ===
+        const select = document.createElement('select');
+        select.style.width = '100%';
+        select.style.fontSize = '16px';
+        select.style.padding = '8px 32px 8px 12px'; // space for ▼
+        select.style.border = 'none';
+        select.style.outline = 'none';
+        select.style.cursor = 'pointer';
+        select.style.borderRadius = '4px';
+        wrapper.appendChild(select);
 
         // Default option
         const defaultOption = document.createElement('option');
@@ -512,9 +533,45 @@ L.Control.PlayerSelect = L.Control.extend({
             })
             .catch(err => console.error('Error while loading players:', err));
 
+        // === ▼ always visible ===
+        const chevron = document.createElement('span');
+        chevron.textContent = '▼';
+        chevron.style.position = 'absolute';
+        chevron.style.right = '8px';
+        chevron.style.top = '50%';
+        chevron.style.transform = 'translateY(-50%)';
+        chevron.style.pointerEvents = 'none';
+        chevron.style.color = '#2B2B33';
+        wrapper.appendChild(chevron);
+
+        // === Box to display flashed moisaics count (below) ===
+        const countBox = document.createElement('div');
+        countBox.style.backgroundColor = 'white';
+        countBox.style.borderRadius = '4px';
+        countBox.style.fontSize = '14px';
+        countBox.style.border = '2px solid rgba(0, 0, 0, 0.2)';
+        countBox.style.backgroundClip = 'padding-box';
+        countBox.className = `
+            px-3 py-2                
+            font-semibold
+            text-center
+            mt-2
+            hidden            
+        `;
+        countBox.textContent = '0 👾';
+        container.appendChild(countBox);
+
+        function updateCountBox(count) {
+            if (count > 0) {
+                countBox.textContent = `${count} 👾`;
+                countBox.classList.remove('hidden');
+            } else {
+                countBox.classList.add('hidden');
+            }
+        }
+
         select.addEventListener('change', () => {
             const selectedUID = select.value;
-            console.log('Selected player:', selectedUID || 'All mosaics');
             const apiUrl = `https://api.space-invaders.com/flashinvaders_v3_pas_trop_predictif/api/gallery?uid=${encodeURIComponent(selectedUID)}`;
 
             showSpinner();
@@ -523,14 +580,16 @@ L.Control.PlayerSelect = L.Control.extend({
                 fetch(apiUrl)
                     .then(res => res.json())
                     .then(data => {
-                        console.log('Received data:', data);
                         window.flashedIDs = new Set(Object.keys(data.invaders || {}));
                         applyFlashedIcons(window.flashedIDs);
+                        updateCountBox(window.flashedIDs.size);
                     })
                     .catch(err => console.error('API fetch error:', err))
                     .finally(() => hideSpinner());
             } else {
-                applyFlashedIcons(new Set());
+                window.flashedIDs = new Set();
+                applyFlashedIcons(window.flashedIDs);
+                updateCountBox(0);
                 hideSpinner();
             }
         });

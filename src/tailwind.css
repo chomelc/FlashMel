@@ -18,19 +18,37 @@ body {
 }
 
 .player-select-control select {
+    -webkit-appearance: none;
+    /* Chrome, Safari */
+    -moz-appearance: none;
+    /* Firefox */
+    appearance: none;
+    /* Standard */
+    position: relative;
     font-size: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border: none;
+    border: 2px solid rgba(0, 0, 0, 0.2) !important;
+    background-clip: padding-box !important;
     outline: none;
-    background: transparent;
+    background: white;
     cursor: pointer;
     padding: 8px 12px;
     width: 160px;
     border-radius: 4px;
 }
 
+.player-select-control select::after {
+    content: '▼';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
 .player-select-control {
-    background: white;
+    border: none !important;
+    background: transparent;
     border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     color: #2B2B33;
