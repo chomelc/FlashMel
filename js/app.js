@@ -247,19 +247,75 @@ L.Control.Locate = L.Control.extend({
             arrow.style.transform = `rotate(${angle}deg)`;
         }
 
+        // Track which orientation event we subscribed to so we know whether
+        // the alpha returned by the browser is actually absolute (i.e. truly
+        // referenced to magnetic/true north) or just relative.
+        let orientationListenerAttached = false;
+        let orientationEventIsAbsolute = false;
+
         // Handling orientation
         function handleOrientation(event) {
-            // alpha = angle in degrees [0-360], rotation around z-axis (compass)
-            let alpha = event.alpha;
-            if (alpha === null) return;
+            // 1) iOS Safari exposes a true-north heading directly.
+            //    `webkitCompassHeading` is already clockwise from north in degrees.
+            // 2) Otherwise, only trust `event.alpha` if we know it's absolute,
+            //    either because we subscribed to `deviceorientationabsolute`
+            //    or because the UA explicitly marks the event as absolute.
+            let heading = null;
 
-            // Fix depending on screen orientation
-            const screenAngle = screen.orientation?.angle || window.orientation || 0;
-            // Inverting left/right
-            alpha = (-alpha - screenAngle + 135) % 360;
+            if (typeof event.webkitCompassHeading === 'number') {
+                heading = event.webkitCompassHeading;
+            } else if ((orientationEventIsAbsolute || event.absolute === true)
+                       && typeof event.alpha === 'number') {
+                // `alpha` is counter-clockwise from north, convert to a
+                // clockwise compass heading.
+                heading = 360 - event.alpha;
+            }
 
-            // Rotate arrow according to alpha
-            rotateArrow(positionMarker, alpha);
+            if (heading === null) return;
+
+            // Compensate for the screen being rotated (landscape mode etc.).
+            const screenAngle = (screen.orientation && screen.orientation.angle)
+                || window.orientation
+                || 0;
+
+            let angle = (heading + screenAngle) % 360;
+            if (angle < 0) angle += 360;
+
+            rotateArrow(positionMarker, angle);
+        }
+
+        // Attach the best available orientation event exactly once.
+        function attachOrientationListener() {
+            if (orientationListenerAttached) return;
+            if ('ondeviceorientationabsolute' in window) {
+                window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+                orientationEventIsAbsolute = true;
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation, true);
+                orientationEventIsAbsolute = false;
+            }
+            orientationListenerAttached = true;
+        }
+
+        // Ask for permission (iOS 13+) and attach the listener, only once.
+        function requestOrientationPermissionOnce() {
+            if (orientationListenerAttached) return Promise.resolve();
+
+            if (typeof DeviceOrientationEvent !== 'undefined' &&
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                return DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            attachOrientationListener();
+                        } else {
+                            alert('Permission to access device orientation was denied.');
+                        }
+                    })
+                    .catch(console.error);
+            }
+
+            attachOrientationListener();
+            return Promise.resolve();
         }
 
         // Check permission and locate
@@ -375,29 +431,10 @@ L.Control.Locate = L.Control.extend({
 
                         tempRadarDone = true;
 
-                        // Listen to device orientation events after marker creation
-                        function requestDeviceOrientationPermission() {
-                            if (
-                                typeof DeviceOrientationEvent !== 'undefined' &&
-                                typeof DeviceOrientationEvent.requestPermission === 'function'
-                            ) {
-                                // iOS 13+ requires explicit permission
-                                DeviceOrientationEvent.requestPermission()
-                                    .then(response => {
-                                        if (response === 'granted') {
-                                            window.addEventListener('deviceorientation', handleOrientation, true);
-                                        } else {
-                                            alert('Permission to access device orientation was denied.');
-                                        }
-                                    })
-                                    .catch(console.error);
-                            } else {
-                                // Other devices/browsers
-                                window.addEventListener('deviceorientation', handleOrientation, true);
-                            }
-                        }
-
-                        requestDeviceOrientationPermission();
+                        // Make sure the orientation listener is attached at least
+                        // once we have a marker (no-op if already attached from the
+                        // button click).
+                        requestOrientationPermissionOnce();
                     }
                     else {
                         // Update marker position
@@ -445,28 +482,10 @@ L.Control.Locate = L.Control.extend({
                 }
             }
 
-            // Request permission for device orientation **immediately**
-            if (
-                typeof DeviceOrientationEvent !== 'undefined' &&
-                typeof DeviceOrientationEvent.requestPermission === 'function'
-            ) {
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            window.addEventListener('deviceorientation', handleOrientation, true);
-                        } else {
-                            alert('Permission to access device orientation was denied.');
-                        }
-                        startGeolocation();
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        startGeolocation();
-                    });
-            } else {
-                // No need to request permission on this device/browser
-                startGeolocation();
-            }
+            // Ask for orientation permission once, then start geolocation
+            // regardless of whether permission was granted (the map still works
+            // without a compass arrow rotation).
+            requestOrientationPermissionOnce().finally(startGeolocation);
         });
 
         return container;
