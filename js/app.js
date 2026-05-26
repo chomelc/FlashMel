@@ -211,6 +211,11 @@ L.Control.Locate = L.Control.extend({
 
         // Fixed position marker
         let positionMarker = null;
+        // Geolocation state shared across clicks: keep a single watcher and
+        // only recenter the map when the user explicitly asks for it (button tap).
+        let watchId = null;
+        let lastKnownLatLng = null;
+        let shouldRecenter = false;
 
         function createPositionIcon(color = '#A259FF') {
             // SVG with <polygon> and id="arrow" for rotation
@@ -285,12 +290,35 @@ L.Control.Locate = L.Control.extend({
 
         // Request location and update map
         function requestLocation() {
+            // Tapping the locate button always means "recenter on me now".
+            shouldRecenter = true;
+
+            // If we already have a known position, recenter immediately
+            // without waiting for the next geolocation tick.
+            if (lastKnownLatLng) {
+                map.setView(lastKnownLatLng, map.getZoom());
+                shouldRecenter = false;
+            }
+
+            // A watcher is already running: don't start another one, just
+            // wait for the next position to (optionally) recenter.
+            if (watchId !== null) {
+                return watchId;
+            }
+
             let tempRadarDone = false;
 
-            const watchId = navigator.geolocation.watchPosition(
+            watchId = navigator.geolocation.watchPosition(
                 position => {
                     const latlng = [position.coords.latitude, position.coords.longitude];
-                    map.setView(latlng, map.getZoom());
+                    lastKnownLatLng = latlng;
+
+                    // Only recenter the map when the user explicitly asked for it
+                    // (initial activation or another tap on the locate button).
+                    if (shouldRecenter) {
+                        map.setView(latlng, map.getZoom());
+                        shouldRecenter = false;
+                    }
 
                     // Create or move the position marker
                     if (!positionMarker) {
