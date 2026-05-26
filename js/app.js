@@ -211,8 +211,7 @@ L.Control.Locate = L.Control.extend({
 
         // Fixed position marker
         let positionMarker = null;
-        // Geolocation state shared across clicks: keep a single watcher and
-        // only recenter the map when the user explicitly asks for it (button tap).
+        // Only recenter the map when the user explicitly asks for it (button tap).
         let watchId = null;
         let lastKnownLatLng = null;
         let shouldRecenter = false;
@@ -265,7 +264,7 @@ L.Control.Locate = L.Control.extend({
             if (typeof event.webkitCompassHeading === 'number') {
                 heading = event.webkitCompassHeading;
             } else if ((orientationEventIsAbsolute || event.absolute === true)
-                       && typeof event.alpha === 'number') {
+                && typeof event.alpha === 'number') {
                 // `alpha` is counter-clockwise from north, convert to a
                 // clockwise compass heading.
                 heading = 360 - event.alpha;
