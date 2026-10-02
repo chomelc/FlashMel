@@ -19521,6 +19521,114 @@
     "points": "30"
   },
   {
+    "city": "ORLN",
+    "id": "ORLN_01",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,9050688259",
+    "lng": "1,9045905654",
+    "points": "30"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_02",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,9019937281",
+    "lng": "1,9028980825",
+    "points": "40"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_03",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,9003825956",
+    "lng": "1,9009345197",
+    "points": "30"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_04",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,8984714066",
+    "lng": "1,9048484765",
+    "points": "30"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_05",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,8999558741",
+    "lng": "1,9062982053",
+    "points": "20"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_06",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,8990089525",
+    "lng": "1,9069437907",
+    "points": "20"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_07",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,9002205304",
+    "lng": "1,9101148343",
+    "points": "50"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_08",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,9009032018",
+    "lng": "1,909099823",
+    "points": "20"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_09",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,898890858",
+    "lng": "1,9208100273",
+    "points": "50"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_10",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,8990299674",
+    "lng": "1,911433323",
+    "points": "30"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_11",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,899074935",
+    "lng": "1,9094522227",
+    "points": "30"
+  },
+  {
+    "city": "ORLN",
+    "id": "ORLN_12",
+    "status": "OK",
+    "hint": "",
+    "lat": "47,8988340469",
+    "lng": "1,9032692863",
+    "points": "40"
+  },
+  {
     "city": "PA",
     "id": "PA_01",
     "status": "destroyed",
@@ -33822,6 +33930,33 @@
     "hint": "",
     "lat": "48.891861930125",
     "lng": "2.390352808775",
+    "points": "30"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1591",
+    "status": "OK",
+    "hint": "",
+    "lat": "48,894665713",
+    "lng": "2,3881770439",
+    "points": "50"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1592",
+    "status": "OK",
+    "hint": "",
+    "lat": "48,8891417218",
+    "lng": "2,3883161508",
+    "points": "30"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1593",
+    "status": "OK",
+    "hint": "",
+    "lat": "48,8864805017",
+    "lng": "2,3939651507",
     "points": "30"
   },
   {
