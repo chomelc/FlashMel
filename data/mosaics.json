@@ -33960,6 +33960,51 @@
     "points": "30"
   },
   {
+    "city": "PA",
+    "id": "PA_1594",
+    "status": "OK",
+    "hint": "",
+    "lat": "48.8661",
+    "lng": "2.3145",
+    "points": "40"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1595",
+    "status": "OK",
+    "hint": "",
+    "lat": "48.8936873",
+    "lng": "2.3270432",
+    "points": "20"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1596",
+    "status": "OK",
+    "hint": "",
+    "lat": "48.8891399",
+    "lng": "2.3926063",
+    "points": "40"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1597",
+    "status": "OK",
+    "hint": "",
+    "lat": "48.8460003",
+    "lng": "2.3852681",
+    "points": "30"
+  },
+  {
+    "city": "PA",
+    "id": "PA_1598",
+    "status": "OK",
+    "hint": "",
+    "lat": "48.8934241",
+    "lng": "2.3928595",
+    "points": "30"
+  },
+  {
     "city": "PAU",
     "id": "PAU_01",
     "status": "OK",
