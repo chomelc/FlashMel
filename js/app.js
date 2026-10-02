@@ -2,14 +2,18 @@
 const cartoKey = window.CARTO_API_KEY || '';
 const cartoKeyParam = cartoKey ? `?key=${encodeURIComponent(cartoKey)}` : '';
 
+const mapAttribution =
+    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' +
+    ' | &copy; <a href="https://carto.com/attribution/" target="_blank" rel="noopener">CARTO</a>';
+
 const darkLayer = L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png${cartoKeyParam}`, {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.carto.com/">CARTO</a>',
+    attribution: mapAttribution,
     subdomains: 'abcd',
     maxZoom: 20
 });
 
 const lightLayer = L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png${cartoKeyParam}`, {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://carto.com/attribution/">CARTO</a>',
+    attribution: mapAttribution,
     subdomains: 'abcd',
     maxZoom: 20
 });

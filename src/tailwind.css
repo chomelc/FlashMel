@@ -81,3 +81,39 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.leaflet-control-attribution {
+    background: rgba(14, 14, 16, 0.82) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    font-size: 11px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    line-height: 1.4 !important;
+    padding: 5px 10px !important;
+    margin: 0 0 8px 0 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(162, 89, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    max-width: calc(100vw - 24px);
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control-attribution {
+    margin-right: 8px !important;
+}
+
+.leaflet-control-attribution a {
+    color: #A259FF !important;
+    text-decoration: none !important;
+    font-weight: 600;
+}
+
+.leaflet-control-attribution a:hover {
+    color: #FF4FD8 !important;
+}
+
+.leaflet-attribution-flag {
+    display: inline !important;
+    vertical-align: baseline;
+    margin-right: 2px;
+}
